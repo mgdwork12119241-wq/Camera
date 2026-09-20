@@ -57,4 +57,12 @@
         Haven't found some strings? There's more at
         https://github.com/FossifyOrg/Commons/tree/master/commons/src/main/res
     -->
+    <string name="face_filter">Face filter</string>
+    <string name="face_filter_off">AI: Off</string>
+    <string name="face_filter_glasses">AI: Glasses</string>
+    <string name="face_filter_bunny">AI: Bunny</string>
+    <string name="face_filter_crown">AI: Crown</string>
+    <string name="face_filter_hearts">AI: Hearts</string>
+    <string name="face_filter_party">AI: Party</string>
+    <string name="face_filter_robot">AI: Robot</string>
 </resources>
