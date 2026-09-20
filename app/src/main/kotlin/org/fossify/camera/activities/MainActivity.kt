@@ -368,6 +368,10 @@ class MainActivity : SimpleActivity(), PhotoProcessor.MediaSavedListener, Camera
                         NovaFaceFilter.HEARTS -> R.string.face_filter_hearts
                         NovaFaceFilter.PARTY -> R.string.face_filter_party
                         NovaFaceFilter.ROBOT -> R.string.face_filter_robot
+                        NovaFaceFilter.BIG_EYES -> R.string.face_filter_big_eyes
+                        NovaFaceFilter.SMILE -> R.string.face_filter_smile
+                        NovaFaceFilter.BEAUTY -> R.string.face_filter_beauty
+                        NovaFaceFilter.FACE_GLOW -> R.string.face_filter_glow
                     }
                 )
             }
