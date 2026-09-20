@@ -54,4 +54,8 @@
     <string name="face_filter_hearts">الذكاء: قلوب</string>
     <string name="face_filter_party">الذكاء: حفلة</string>
     <string name="face_filter_robot">الذكاء: روبوت</string>
+    <string name="face_filter_big_eyes">الذكاء: عيون كبيرة</string>
+    <string name="face_filter_smile">الذكاء: ابتسامة</string>
+    <string name="face_filter_beauty">الذكاء: تجميل</string>
+    <string name="face_filter_glow">الذكاء: إضاءة الوجه</string>
 </resources>
