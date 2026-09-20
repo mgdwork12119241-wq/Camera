@@ -46,4 +46,12 @@
     <string name="photo_compression_quality">جودة ضغط الصور</string>
     <string name="shutter">الغالق</string>
     <string name="max_brightness">أقصى سطوع للشاشة أثناء المعاينة</string>
+    <string name="face_filter">فلتر الوجه</string>
+    <string name="face_filter_off">الذكاء: إيقاف</string>
+    <string name="face_filter_glasses">الذكاء: نظارات</string>
+    <string name="face_filter_bunny">الذكاء: أرنب</string>
+    <string name="face_filter_crown">الذكاء: تاج</string>
+    <string name="face_filter_hearts">الذكاء: قلوب</string>
+    <string name="face_filter_party">الذكاء: حفلة</string>
+    <string name="face_filter_robot">الذكاء: روبوت</string>
 </resources>
