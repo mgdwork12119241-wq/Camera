@@ -65,4 +65,8 @@
     <string name="face_filter_hearts">AI: Hearts</string>
     <string name="face_filter_party">AI: Party</string>
     <string name="face_filter_robot">AI: Robot</string>
+    <string name="face_filter_big_eyes">AI: Big eyes</string>
+    <string name="face_filter_smile">AI: Smile</string>
+    <string name="face_filter_beauty">AI: Beauty</string>
+    <string name="face_filter_glow">AI: Face glow</string>
 </resources>
