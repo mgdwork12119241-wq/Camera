@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_launcher_name">Camera</string>
+    <string name="app_launcher_name">Nova</string>
     <string name="capture_mode">Capture mode</string>
     <string name="maximize_quality">Maximize quality</string>
     <string name="minimize_latency">Minimize latency</string>
