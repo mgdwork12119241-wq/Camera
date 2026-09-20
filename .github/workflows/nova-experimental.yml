@@ -1,0 +1,65 @@
+name: Nova Experimental APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - nova-experimental
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Generate temporary test signing key
+        shell: bash
+        run: |
+          keytool -genkeypair -v \
+            -keystore "${{ runner.temp }}/nova-test.jks" \
+            -storetype JKS \
+            -alias nova-test \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 3650 \
+            -storepass nova-test-password \
+            -keypass nova-test-password \
+            -dname "CN=Nova Experimental, OU=Test, O=Nova, L=Test, ST=Test, C=NL"
+
+      - name: Build signed release APK
+        env:
+          SIGNING_KEY_ALIAS: nova-test
+          SIGNING_KEY_PASSWORD: nova-test-password
+          SIGNING_STORE_FILE: ${{ runner.temp }}/nova-test.jks
+          SIGNING_STORE_PASSWORD: nova-test-password
+        run: |
+          chmod +x ./gradlew
+          ./gradlew :app:assembleCoreRelease --no-daemon
+
+      - name: Package APK as ZIP
+        shell: bash
+        run: |
+          mkdir -p dist
+          cp app/build/outputs/apk/core/release/*.apk dist/Nova-Experimental-1.0.0.apk
+          cd dist
+          sha256sum Nova-Experimental-1.0.0.apk > Nova-Experimental-1.0.0.sha256
+          zip -9 Nova-Experimental-1.0.0.zip Nova-Experimental-1.0.0.apk Nova-Experimental-1.0.0.sha256
+
+      - name: Upload APK and ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: Nova-Experimental-APK
+          path: |
+            dist/Nova-Experimental-1.0.0.apk
+            dist/Nova-Experimental-1.0.0.zip
+            dist/Nova-Experimental-1.0.0.sha256
