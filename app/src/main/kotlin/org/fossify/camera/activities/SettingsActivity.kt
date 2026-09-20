@@ -24,7 +24,6 @@ class SettingsActivity : SimpleActivity() {
         binding.apply {
             setContentView(root)
             setupOptionsMenu()
-            refreshMenuItems()
 
             setupEdgeToEdge(padBottomSystem = listOf(settingsNestedScrollview))
             setupMaterialScrollListener(binding.settingsNestedScrollview, binding.settingsAppbar)
@@ -61,18 +60,9 @@ class SettingsActivity : SimpleActivity() {
             }
         }
     }
-
-    private fun refreshMenuItems() {
-        binding.settingsToolbar.menu.apply {
-            findItem(R.id.more_apps_from_us).isVisible =
-                !resources.getBoolean(org.fossify.commons.R.bool.hide_google_relations)
-        }
-    }
-
     private fun setupOptionsMenu() {
         binding.settingsToolbar.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.more_apps_from_us -> launchMoreAppsFromUsIntent()
                 R.id.about -> launchAbout()
                 else -> return@setOnMenuItemClickListener false
             }
