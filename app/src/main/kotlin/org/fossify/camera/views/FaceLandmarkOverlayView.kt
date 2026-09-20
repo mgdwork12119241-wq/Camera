@@ -17,6 +17,10 @@ enum class NovaFaceFilter(val title: String) {
     HEARTS("قلوب"),
     PARTY("حفلة"),
     ROBOT("روبوت"),
+    BIG_EYES("عيون كبيرة"),
+    SMILE("ابتسامة"),
+    BEAUTY("تجميل"),
+    FACE_GLOW("إضاءة الوجه"),
 }
 
 data class FaceLandmarkPoint(
@@ -151,6 +155,10 @@ class FaceLandmarkOverlayView(context: Context) : View(context) {
             NovaFaceFilter.HEARTS -> drawHearts(canvas, face, mouths)
             NovaFaceFilter.PARTY -> drawParty(canvas, face, eyeDistance)
             NovaFaceFilter.ROBOT -> drawRobot(canvas, face, leftEye, rightEye, nose)
+            NovaFaceFilter.BIG_EYES -> drawBigEyes(canvas, face, leftEye, rightEye, eyeDistance)
+            NovaFaceFilter.SMILE -> drawSmileTransform(canvas, face, eyeDistance)
+            NovaFaceFilter.BEAUTY -> drawBeauty(canvas, face)
+            NovaFaceFilter.FACE_GLOW -> drawFaceGlow(canvas, face)
             NovaFaceFilter.OFF -> Unit
         }
 
@@ -237,6 +245,61 @@ class FaceLandmarkOverlayView(context: Context) : View(context) {
         filterPaint.color = 0xFF00BCD4.toInt()
         canvas.drawCircle(face.bounds.centerX(), face.bounds.top - face.bounds.height() * .12f, max(10f, distance * .10f), filterPaint)
         drawSparkle(canvas, face.bounds.centerX(), face.bounds.bottom + face.bounds.height() * .06f, distance * .10f)
+    }
+
+
+    private fun drawBigEyes(canvas: Canvas, face: FaceOverlayResult, left: FaceLandmarkPoint?, right: FaceLandmarkPoint?, distance: Float) {
+        val radius = max(18f, distance * .30f)
+        listOf(left, right).forEach { eye ->
+            eye ?: return@forEach
+            filterPaint.color = 0x2218FFFF
+            canvas.drawCircle(eye.x, eye.y, radius, filterPaint)
+            filterStroke.color = 0xFF80DEEA.toInt()
+            filterStroke.strokeWidth = max(3f, distance * .025f)
+            canvas.drawCircle(eye.x, eye.y, radius, filterStroke)
+            filterPaint.color = 0xFFFFFFFF.toInt()
+            canvas.drawCircle(eye.x - radius * .18f, eye.y - radius * .18f, radius * .23f, filterPaint)
+        }
+    }
+
+    private fun drawSmileTransform(canvas: Canvas, face: FaceOverlayResult, distance: Float) {
+        val mouth = face.points.filter { it.kind == "mouth" }
+        if (mouth.isEmpty()) return
+        val minX = mouth.minOf { it.x }
+        val maxX = mouth.maxOf { it.x }
+        val y = mouth.map { it.y }.average().toFloat()
+        val width = max(distance * .22f, maxX - minX)
+        filterStroke.color = 0xFFFF4081.toInt()
+        filterStroke.strokeWidth = max(5f, distance * .045f)
+        val path = Path().apply {
+            moveTo(minX, y)
+            cubicTo(minX + width * .30f, y + distance * .12f, maxX - width * .30f, y + distance * .12f, maxX, y)
+        }
+        canvas.drawPath(path, filterStroke)
+        filterPaint.color = 0xFFFFCDD2.toInt()
+        canvas.drawOval(RectF(minX, y - distance * .035f, maxX, y + distance * .09f), filterPaint)
+    }
+
+    private fun drawBeauty(canvas: Canvas, face: FaceOverlayResult) {
+        val b = RectF(face.bounds)
+        val padX = b.width() * .10f
+        val padY = b.height() * .08f
+        b.inset(-padX, -padY)
+        filterPaint.color = 0x183F51B5
+        canvas.drawOval(b, filterPaint)
+        filterStroke.color = 0x55FFFFFF
+        filterStroke.strokeWidth = max(3f, face.bounds.width() * .012f)
+        canvas.drawOval(b, filterStroke)
+    }
+
+    private fun drawFaceGlow(canvas: Canvas, face: FaceOverlayResult) {
+        val b = face.bounds
+        val radius = max(b.width(), b.height()) * .55f
+        filterPaint.color = 0x18FFF59D
+        canvas.drawCircle(b.centerX(), b.centerY(), radius, filterPaint)
+        filterStroke.color = 0x66FFF59D
+        filterStroke.strokeWidth = max(3f, b.width() * .018f)
+        canvas.drawOval(RectF(b.left - b.width()*.05f, b.top - b.height()*.05f, b.right + b.width()*.05f, b.bottom + b.height()*.05f), filterStroke)
     }
 
     private fun drawRobot(
