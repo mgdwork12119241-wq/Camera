@@ -6,11 +6,13 @@ import org.fossify.camera.helpers.CameraErrorHandler
 import org.fossify.camera.helpers.MediaOutputHelper
 import org.fossify.camera.helpers.MediaSoundHelper
 import org.fossify.commons.activities.BaseSimpleActivity
+import org.fossify.camera.views.FaceLandmarkOverlayView
 
 class CameraXInitializer(private val activity: BaseSimpleActivity) {
 
     fun createCameraXPreview(
         previewView: PreviewView,
+        faceOverlayView: FaceLandmarkOverlayView,
         listener: CameraXPreviewListener,
         mediaSoundHelper: MediaSoundHelper,
         outputUri: Uri?,
@@ -23,6 +25,7 @@ class CameraXInitializer(private val activity: BaseSimpleActivity) {
         return CameraXPreview(
             activity,
             previewView,
+            faceOverlayView,
             mediaSoundHelper,
             mediaOutputHelper,
             cameraErrorHandler,
