@@ -20,6 +20,7 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraState
 import androidx.camera.core.DisplayOrientedMeteringPointFactory
 import androidx.camera.core.FocusMeteringAction
+import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.Builder
 import androidx.camera.core.ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
@@ -87,6 +88,8 @@ import org.fossify.camera.models.CaptureMode
 import org.fossify.camera.models.MediaOutput
 import org.fossify.camera.models.MySize
 import org.fossify.camera.models.ResolutionOption
+import org.fossify.camera.views.FaceLandmarkOverlayView
+import java.util.concurrent.Executors
 import org.fossify.commons.activities.BaseSimpleActivity
 import org.fossify.commons.extensions.toast
 import org.fossify.commons.helpers.PERMISSION_ACCESS_FINE_LOCATION
@@ -96,6 +99,7 @@ import kotlin.math.abs
 class CameraXPreview(
     private val activity: BaseSimpleActivity,
     private val previewView: PreviewView,
+    private val faceOverlayView: FaceLandmarkOverlayView,
     private val mediaSoundHelper: MediaSoundHelper,
     private val mediaOutputHelper: MediaOutputHelper,
     private val cameraErrorHandler: CameraErrorHandler,
@@ -172,6 +176,8 @@ class CameraXPreview(
     private var cameraProvider: ProcessCameraProvider? = null
     private var imageCapture: ImageCapture? = null
     private var videoCapture: VideoCapture<Recorder>? = null
+    private var imageAnalysis: ImageAnalysis? = null
+    private val faceAnalysisExecutor = Executors.newSingleThreadExecutor()
     private var camera: Camera? = null
     private var currentRecording: Recording? = null
     private var recordingState: VideoRecordEvent? = null
@@ -232,6 +238,7 @@ class CameraXPreview(
 
         val previewUseCase = buildPreview(targetResolution, rotation)
         val captureUseCase = getCaptureUseCase(targetResolution, rotation)
+        val faceAnalysisUseCase = buildFaceAnalysis(rotation)
 
         cameraProvider.unbindAll()
         camera = if (isFullSize) {
@@ -243,6 +250,7 @@ class CameraXPreview(
             val useCaseGroup = UseCaseGroup.Builder()
                 .addUseCase(previewUseCase)
                 .addUseCase(captureUseCase)
+                .addUseCase(faceAnalysisUseCase)
                 .setViewPort(viewPort)
                 .build()
 
@@ -257,11 +265,31 @@ class CameraXPreview(
                 cameraSelector,
                 previewUseCase,
                 captureUseCase,
+                faceAnalysisUseCase,
             )
         }
         preview = previewUseCase
+        imageAnalysis = faceAnalysisUseCase
         setupZoomAndFocus()
         setFlashlightState(config.flashlightState)
+    }
+
+    private fun buildFaceAnalysis(rotation: Int): ImageAnalysis {
+        val analysis = ImageAnalysis.Builder()
+            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+            .setTargetRotation(rotation)
+            .setResolutionSelector(getResolutionSelector(Size(480, 360)))
+            .build()
+
+        analysis.setAnalyzer(
+            faceAnalysisExecutor,
+            FaceLandmarkAnalyzer(
+                previewView = previewView,
+                overlayView = faceOverlayView,
+                isFrontCamera = ::isFrontCameraInUse,
+            )
+        )
+        return analysis
     }
 
     private fun buildPreview(resolution: Size, rotation: Int): Preview {
@@ -464,6 +492,13 @@ class CameraXPreview(
 
     override fun onStop(owner: LifecycleOwner) {
         orientationEventListener.disable()
+    }
+
+    override fun onDestroy(owner: LifecycleOwner) {
+        imageAnalysis?.clearAnalyzer()
+        faceAnalysisExecutor.shutdownNow()
+        faceOverlayView.clear()
+        super.onDestroy(owner)
     }
 
     override fun isInPhotoMode(): Boolean {
