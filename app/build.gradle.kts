@@ -143,6 +143,7 @@ dependencies {
     implementation(libs.androidx.documentfile)
     implementation(libs.androidx.exifinterface)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.mlkit.face.detection)
     implementation(libs.androidx.window)
     detektPlugins(libs.compose.detekt)
 }
