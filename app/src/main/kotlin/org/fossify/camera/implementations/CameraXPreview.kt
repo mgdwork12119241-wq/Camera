@@ -62,6 +62,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.window.layout.WindowMetricsCalculator
 import com.bumptech.glide.load.ImageHeaderParser.UNKNOWN_ORIENTATION
+import org.fossify.camera.helpers.FaceLandmarkAnalyzer
 import org.fossify.camera.R
 import org.fossify.camera.extensions.checkLocationPermission
 import org.fossify.camera.extensions.config
