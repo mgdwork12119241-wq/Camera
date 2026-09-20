@@ -65,6 +65,7 @@ class FaceLandmarkOverlayView(context: Context) : View(context) {
 
     private var results: List<FaceOverlayResult> = emptyList()
     private var currentFilter = NovaFaceFilter.OFF
+    private val smoothedFaces = mutableMapOf<Int, FaceOverlayResult>()
 
     init {
         setWillNotDraw(false)
@@ -72,8 +73,55 @@ class FaceLandmarkOverlayView(context: Context) : View(context) {
     }
 
     fun setResults(newResults: List<FaceOverlayResult>) {
-        results = newResults
+        val alpha = 0.35f
+        results = newResults.map { face ->
+            val id = face.trackingId
+            if (id == null) {
+                face
+            } else {
+                val previous = smoothedFaces[id]
+                if (previous == null) {
+                    smoothedFaces[id] = face
+                    face
+                } else {
+                    val smoothed = smoothFace(previous, face, alpha)
+                    smoothedFaces[id] = smoothed
+                    smoothed
+                }
+            }
+        }
+        val activeIds = newResults.mapNotNull { it.trackingId }.toSet()
+        smoothedFaces.keys.retainAll(activeIds)
         postInvalidateOnAnimation()
+    }
+
+    private fun smoothFace(
+        previous: FaceOverlayResult,
+        current: FaceOverlayResult,
+        alpha: Float,
+    ): FaceOverlayResult {
+        fun lerp(a: Float, b: Float): Float = a + (b - a) * alpha
+        val bounds = RectF(
+            lerp(previous.bounds.left, current.bounds.left),
+            lerp(previous.bounds.top, current.bounds.top),
+            lerp(previous.bounds.right, current.bounds.right),
+            lerp(previous.bounds.bottom, current.bounds.bottom),
+        )
+        val points = current.points.mapIndexed { index, point ->
+            val old = previous.points.getOrNull(index)
+            if (old == null || old.kind != point.kind) point
+            else FaceLandmarkPoint(
+                lerp(old.x, point.x),
+                lerp(old.y, point.y),
+                point.kind,
+            )
+        }
+        val smile = if (previous.smileProbability != null && current.smileProbability != null) {
+            lerp(previous.smileProbability, current.smileProbability)
+        } else {
+            current.smileProbability
+        }
+        return FaceOverlayResult(bounds, points, smile, current.trackingId)
     }
 
     fun clear() {
