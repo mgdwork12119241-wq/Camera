@@ -38,6 +38,7 @@ import org.fossify.camera.implementations.CameraXPreviewListener
 import org.fossify.camera.interfaces.MyPreview
 import org.fossify.camera.models.ResolutionOption
 import org.fossify.camera.models.TimerMode
+import org.fossify.camera.views.FaceLandmarkOverlayView
 import org.fossify.camera.views.FocusCircleView
 import org.fossify.commons.extensions.*
 import org.fossify.commons.helpers.*
@@ -337,8 +338,20 @@ class MainActivity : SimpleActivity(), PhotoProcessor.MediaSavedListener, Camera
 
         val outputUri = intent.extras?.get(MediaStore.EXTRA_OUTPUT) as? Uri
         val isThirdPartyIntent = isThirdPartyIntent()
+        val faceOverlayView = FaceLandmarkOverlayView(this).apply {
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT,
+            )
+            isClickable = false
+            isFocusable = false
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }
+        binding.viewHolder.addView(faceOverlayView)
+
         mPreview = CameraXInitializer(this).createCameraXPreview(
             binding.previewView,
+            faceOverlayView,
             listener = this,
             mediaSoundHelper = mediaSoundHelper,
             outputUri = outputUri,
