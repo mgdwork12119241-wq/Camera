@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import android.provider.MediaStore
 import android.view.*
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
@@ -39,6 +40,7 @@ import org.fossify.camera.interfaces.MyPreview
 import org.fossify.camera.models.ResolutionOption
 import org.fossify.camera.models.TimerMode
 import org.fossify.camera.views.FaceLandmarkOverlayView
+import org.fossify.camera.views.NovaFaceFilter
 import org.fossify.camera.views.FocusCircleView
 import org.fossify.commons.extensions.*
 import org.fossify.commons.helpers.*
@@ -348,6 +350,40 @@ class MainActivity : SimpleActivity(), PhotoProcessor.MediaSavedListener, Camera
             importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
         }
         binding.viewHolder.addView(faceOverlayView)
+
+        val faceFilterButton = MaterialButton(this).apply {
+            text = getString(R.string.face_filter_off)
+            isAllCaps = false
+            minWidth = 0
+            minimumWidth = 0
+            setPadding(18, 0, 18, 0)
+            setOnClickListener {
+                val selected = faceOverlayView.cycleFilter()
+                text = getString(
+                    when (selected) {
+                        NovaFaceFilter.OFF -> R.string.face_filter_off
+                        NovaFaceFilter.GLASSES -> R.string.face_filter_glasses
+                        NovaFaceFilter.BUNNY -> R.string.face_filter_bunny
+                        NovaFaceFilter.CROWN -> R.string.face_filter_crown
+                        NovaFaceFilter.HEARTS -> R.string.face_filter_hearts
+                        NovaFaceFilter.PARTY -> R.string.face_filter_party
+                        NovaFaceFilter.ROBOT -> R.string.face_filter_robot
+                    }
+                )
+            }
+            contentDescription = getString(R.string.face_filter)
+        }
+
+        val filterLayoutParams = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams(
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        ).apply {
+            endToEnd = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID
+            topToTop = androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID
+            topMargin = resources.getDimensionPixelSize(org.fossify.commons.R.dimen.bigger_margin) * 3
+            marginEnd = resources.getDimensionPixelSize(org.fossify.commons.R.dimen.medium_margin)
+        }
+        binding.viewHolder.addView(faceFilterButton, filterLayoutParams)
 
         mPreview = CameraXInitializer(this).createCameraXPreview(
             binding.previewView,
